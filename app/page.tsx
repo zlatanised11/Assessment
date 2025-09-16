@@ -61,10 +61,10 @@ export default function Home() {
         {analysisResult && (
           <div className="max-w-6xl mx-auto">
             <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
-              <h2 className="text-xl font-semibold mb-2">
+              <h2 className="text-xl font-semibold mb-2 text-black">
                 Analysis Results for {analysisResult.repository.name}
               </h2>
-              <p className="text-gray-600">
+              <p className="text-black">
                 Found {analysisResult.issues.length} potential security issues in {analysisResult.filesAnalyzed} files
               </p>
             </div>
@@ -73,13 +73,13 @@ export default function Home() {
               <TabsList className="flex gap-2 mb-6">
                 <TabsTrigger
                   value="issues"
-                  className="px-4 py-2 rounded-lg data-[state=active]:bg-blue-600 data-[state=active]:text-white bg-white"
+                  className="px-4 py-2 rounded-lg data-[state=active]:bg-blue-600 data-[state=active]:text-white bg-white text-black"
                 >
                   Issues View
                 </TabsTrigger>
                 <TabsTrigger
                   value="code"
-                  className="px-4 py-2 rounded-lg data-[state=active]:bg-blue-600 data-[state=active]:text-white bg-white"
+                  className="px-4 py-2 rounded-lg data-[state=active]:bg-blue-600 data-[state=active]:text-white bg-white text-black"
                 >
                   Code View
                 </TabsTrigger>

@@ -14,7 +14,7 @@ export default function CodeView({ issue, fullCode }: CodeViewProps) {
   return (
     <div className="border rounded-lg overflow-hidden">
       <div className="bg-gray-100 px-4 py-2 border-b">
-        <h3 className="font-mono text-sm">{issue.file}</h3>
+        <h3 className="font-mono text-sm text-black">{issue.file}</h3>
       </div>
       <div className="bg-gray-900 p-4 overflow-x-auto">
         <Highlight

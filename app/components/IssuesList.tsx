@@ -33,7 +33,7 @@ export default function IssuesList({ issues, onIssueClick }: IssuesListProps) {
                 <Icon className={`w-5 h-5 ${config.color}`} />
               </div>
               <div className="flex-1">
-                <h3 className="font-semibold text-lg">{issue.title}</h3>
+                <h3 className="font-semibold text-lg text-black">{issue.title}</h3>
                 <p className="text-gray-600 mt-1">{issue.description}</p>
                 <div className="flex items-center gap-4 mt-3 text-sm">
                   <span className={`px-2 py-1 rounded-full ${config.bg} ${config.color} font-medium`}>
