@@ -29,19 +29,22 @@ For each issue found, provide:
 - A suggestion for fixing it
 - Category of the vulnerability
 
-Return the results as a JSON array of objects with the following structure:
-{
-  "title": "Issue title",
-  "description": "Detailed description",
-  "severity": "critical|high|medium|low",
-  "line": line_number,
-  "endLine": end_line_number (optional),
-  "code": "code snippet",
-  "suggestion": "How to fix",
-  "category": "Category name"
-}
+Return ONLY the results as a valid JSON array of objects with the following structure, and NOTHING else:
+[
+  {
+    "title": "Issue title",
+    "description": "Detailed description",
+    "severity": "critical|high|medium|low",
+    "line": line_number,
+    "endLine": end_line_number (optional),
+    "code": "code snippet",
+    "suggestion": "How to fix",
+    "category": "Category name"
+  }
+]
 
-If no issues are found, return an empty array.
+If no issues are found, return an empty array: []
+Do not include any explanation, markdown, or text outside the JSON array.
 `;
 
 export async function analyzeCode(
@@ -61,16 +64,39 @@ export async function analyzeCode(
           content: `File: ${fileName}\n\nCode:\n\`\`\`\n${fileContent}\n\`\`\``
         }
       ],
-      temperature: 0.3,
-      response_format: { type: 'json_object' }
+      temperature: 0.3
     });
 
     const content = response.choices[0].message.content;
-    if (!content) return [];
+    console.debug('[LLM RAW RESPONSE]', content);
+    if (!content) {
+      console.warn('[LLM] No content returned for', fileName);
+      return [];
+    }
 
-    const result = JSON.parse(content);
-    const issues = result.issues || result.vulnerabilities || [];
-    
+    let result;
+    try {
+      // Try direct JSON parse first
+      result = JSON.parse(content);
+    } catch (e) {
+      // Fallback: extract first JSON array from response
+      const match = content.match(/(\[.*\])/s);
+      if (match) {
+        try {
+          result = JSON.parse(match[1]);
+        } catch (e2) {
+          console.error('[LLM] Fallback JSON parse failed for', fileName, content, e2);
+          return [];
+        }
+      } else {
+        console.error('[LLM] Failed to parse JSON for', fileName, content, e);
+        return [];
+      }
+    }
+    const issues = Array.isArray(result) ? result : (result.issues || result.vulnerabilities || []);
+    if (!issues.length) {
+      console.info('[LLM] No issues found for', fileName);
+    }
     return issues.map((issue: any, index: number) => ({
       id: `${fileName}-${index}`,
       file: fileName,
