@@ -6,45 +6,25 @@ const openai = new OpenAI({
 });
 
 const SECURITY_ANALYSIS_PROMPT = `
-You are a security expert analyzing code for potential vulnerabilities. Analyze the following code and identify security issues.
+You are a security expert. Analyze the code below for:
+SQL/NoSQL Injection, XSS, Auth/AuthZ issues, Sensitive data exposure, Insecure deps, Command injection, Path traversal, Insecure crypto, Race conditions, Memory leaks.
 
-Focus on:
-1. SQL Injection vulnerabilities
-2. Cross-Site Scripting (XSS)
-3. Authentication/Authorization issues
-4. Sensitive data exposure
-5. Insecure dependencies
-6. Command injection
-7. Path traversal
-8. Insecure cryptography
-9. Race conditions
-10. Memory leaks
-
-For each issue found, provide:
-- A clear title
-- Detailed description
-- Severity level (critical, high, medium, low)
-- The specific line numbers affected
-- A code snippet showing the vulnerability
-- A suggestion for fixing it
-- Category of the vulnerability
-
-Return ONLY the results as a valid JSON array of objects with the following structure, and NOTHING else:
+Return ONLY JSON array:
 [
   {
-    "title": "Issue title",
-    "description": "Detailed description",
+    "title": "...",
+    "description": "...",
     "severity": "critical|high|medium|low",
-    "line": line_number,
-    "endLine": end_line_number (optional),
-    "code": "code snippet",
-    "suggestion": "How to fix",
-    "category": "Category name"
+    "filePath": "...",
+    "line": number|null,
+    "endLine": number|null,
+    "code": "...",
+    "suggestion": "...",
+    "category": "...",
+    "confidence": "low|medium|high"
   }
 ]
-
-If no issues are found, return an empty array: []
-Do not include any explanation, markdown, or text outside the JSON array.
+If no issues, return [].
 `;
 
 export async function analyzeCode(

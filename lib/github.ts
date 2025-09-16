@@ -56,10 +56,8 @@ export async function getRepositoryInfo(owner: string, repo: string) {
 
 export async function getAllFiles(owner: string, repo: string, path: string = ''): Promise<string[]> {
   const files: string[] = [];
-  
   try {
     const contents = await getRepositoryContent(owner, repo, path);
-    
     if (Array.isArray(contents)) {
       for (const item of contents) {
         if (item.type === 'file' && (
@@ -70,7 +68,19 @@ export async function getAllFiles(owner: string, repo: string, path: string = ''
           item.name.endsWith('.py') ||
           item.name.endsWith('.java')
         )) {
-          files.push(item.path);
+          // Prioritize critical files by name or path
+          const lowerName = item.name.toLowerCase();
+          const lowerPath = item.path.toLowerCase();
+          const isCritical =
+            lowerName.includes('auth') ||
+            lowerName.includes('config') ||
+            lowerName.includes('database') ||
+            lowerName.includes('user') ||
+            lowerName.includes('admin') ||
+            lowerPath.includes('lib/') ||
+            lowerPath.includes('api/') ||
+            lowerPath.includes('server/');
+          files.push(isCritical ? '__CRITICAL__' + item.path : item.path);
         } else if (item.type === 'dir') {
           const subFiles = await getAllFiles(owner, repo, item.path);
           files.push(...subFiles);
@@ -80,6 +90,8 @@ export async function getAllFiles(owner: string, repo: string, path: string = ''
   } catch (error) {
     console.error(`Error scanning directory ${path}:`, error);
   }
-  
-  return files;
+  // Move critical files to the front
+  const prioritized = files.filter(f => f.startsWith('__CRITICAL__')).map(f => f.replace('__CRITICAL__', ''));
+  const normal = files.filter(f => !f.startsWith('__CRITICAL__'));
+  return [...prioritized, ...normal];
 }

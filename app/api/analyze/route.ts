@@ -18,11 +18,11 @@ export async function POST(request: NextRequest) {
     // Get repository info
     const repoInfo = await getRepositoryInfo(owner, repo);
 
-    // Get all code files
+    // Get all code files (critical files prioritized)
     const files = await getAllFiles(owner, repo);
 
-  // Limit to first 10 files for demo (to avoid rate limits)
-  const filesToAnalyze = files.slice(0, 10);
+    // Limit to first 10 files, but critical files are prioritized
+    const filesToAnalyze = files.slice(0, 10);
 
     // Analyze each file
     const allIssues: SecurityIssue[] = [];
