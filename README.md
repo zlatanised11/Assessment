@@ -1,36 +1,27 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+Spearbit Labs Assessment Report
 
-## Getting Started
+Here is how I approached the problem:
 
-First, run the development server:
+1. Read the question, thought of an approach I was going to implement.
+2. Gave ChatGPT my approach and asked it to give me the necessary code in typescript.
+3. Created repo and the files and used the code GPT gave me.
+4. It didn’t work
+5. (Well, Well, Well)
+6. Manually inspected the code and found issues in the backend, but frontend was pretty solid with no errors
+7. Checked locally, app ran fine, but was taking too long.
+8. Used gpt 4 for api calls, and shortened my prompt query as the amount of money I lost due to api calls was more that the number of job rejections I have gotten in the past year.
+9. Finally, I had to nerf my application and limited it to 10 files per repo and 300 lines per file
+10. Locally, my app was ready
+11. VERCEL COULD NOT BUILD MY APPLICATION
+12. It was fine though as I fixed the dependencies and it’s been happy sailing ever since.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+Here is the URL: https://assessment-five-delta.vercel.app/
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Here is the repo I tested: https://github.com/OWASP/NodeGoat
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Running Instructions:
+•	Open my app
+•	Paste the github link mentioned above
+•	Wait for 2-3 minutes
+•	😎
+<img width="468" height="656" alt="image" src="https://github.com/user-attachments/assets/2e207d73-1f12-4bf0-8085-81ee58c11f69" />
