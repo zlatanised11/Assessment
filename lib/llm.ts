@@ -51,59 +51,88 @@ export async function analyzeCode(
   fileName: string,
   fileContent: string
 ): Promise<SecurityIssue[]> {
-  try {
-    const response = await openai.chat.completions.create({
-      model: 'gpt-4',
-      messages: [
-        {
-          role: 'system',
-          content: SECURITY_ANALYSIS_PROMPT
-        },
-        {
-          role: 'user',
-          content: `File: ${fileName}\n\nCode:\n\`\`\`\n${fileContent}\n\`\`\``
-        }
-      ],
-      temperature: 0.3
-    });
+  // Truncate file content to first 300 lines or 10KB
+  let truncatedContent = fileContent;
+  const lines = fileContent.split('\n');
+  if (lines.length > 300) {
+    truncatedContent = lines.slice(0, 300).join('\n');
+  }
+  if (truncatedContent.length > 10240) {
+    truncatedContent = truncatedContent.slice(0, 10240);
+  }
 
-    const content = response.choices[0].message.content;
-    console.debug('[LLM RAW RESPONSE]', content);
-    if (!content) {
-      console.warn('[LLM] No content returned for', fileName);
-      return [];
-    }
-
-    let result;
+  // Retry logic for rate limits
+  const maxRetries = 4;
+  let attempt = 0;
+  let lastError;
+  while (attempt <= maxRetries) {
     try {
-      // Try direct JSON parse first
-      result = JSON.parse(content);
-    } catch (e) {
-      // Fallback: extract first JSON array from response
-      const match = content.match(/(\[.*\])/s);
-      if (match) {
-        try {
-          result = JSON.parse(match[1]);
-        } catch (e2) {
-          console.error('[LLM] Fallback JSON parse failed for', fileName, content, e2);
+      const response = await openai.chat.completions.create({
+        model: 'gpt-4',
+        messages: [
+          {
+            role: 'system',
+            content: SECURITY_ANALYSIS_PROMPT
+          },
+          {
+            role: 'user',
+            content: `File: ${fileName}\n\nCode:\n\`\`\`\n${truncatedContent}\n\`\`\``
+          }
+        ],
+        temperature: 0.3
+      });
+
+      const content = response.choices[0].message.content;
+      console.debug('[LLM RAW RESPONSE]', content);
+      if (!content) {
+        console.warn('[LLM] No content returned for', fileName);
+        return [];
+      }
+
+      let result;
+      try {
+        // Try direct JSON parse first
+        result = JSON.parse(content);
+      } catch (e) {
+        // Fallback: extract first JSON array from response
+        const match = content.match(/(\[.*\])/s);
+        if (match) {
+          try {
+            result = JSON.parse(match[1]);
+          } catch (e2) {
+            console.error('[LLM] Fallback JSON parse failed for', fileName, content, e2);
+            return [];
+          }
+        } else {
+          console.error('[LLM] Failed to parse JSON for', fileName, content, e);
           return [];
         }
+      }
+      const issues = Array.isArray(result) ? result : (result.issues || result.vulnerabilities || []);
+      if (!issues.length) {
+        console.info('[LLM] No issues found for', fileName);
+      }
+      return issues.map((issue: any, index: number) => ({
+        id: `${fileName}-${index}`,
+        file: fileName,
+        ...issue
+      }));
+    } catch (error: any) {
+      lastError = error;
+      // Check for rate limit error (429)
+      if (error.status === 429 || (error.response && error.response.status === 429)) {
+        const delay = Math.pow(2, attempt) * 1000 + Math.floor(Math.random() * 500);
+        console.warn(`[LLM] Rate limit hit, retrying in ${delay}ms (attempt ${attempt + 1}/${maxRetries})`);
+        await new Promise(res => setTimeout(res, delay));
+        attempt++;
+        continue;
       } else {
-        console.error('[LLM] Failed to parse JSON for', fileName, content, e);
+        console.error('Error analyzing code with LLM:', error);
         return [];
       }
     }
-    const issues = Array.isArray(result) ? result : (result.issues || result.vulnerabilities || []);
-    if (!issues.length) {
-      console.info('[LLM] No issues found for', fileName);
-    }
-    return issues.map((issue: any, index: number) => ({
-      id: `${fileName}-${index}`,
-      file: fileName,
-      ...issue
-    }));
-  } catch (error) {
-    console.error('Error analyzing code with LLM:', error);
-    return [];
   }
+  // If all retries failed
+  console.error('Error analyzing code with LLM after retries:', lastError);
+  throw lastError;
 }
