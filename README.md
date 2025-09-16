@@ -24,4 +24,3 @@ Running Instructions:
 •	Paste the github link mentioned above
 •	Wait for 2-3 minutes
 •	😎
-<img width="468" height="656" alt="image" src="https://github.com/user-attachments/assets/2e207d73-1f12-4bf0-8085-81ee58c11f69" />
