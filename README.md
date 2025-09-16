@@ -24,3 +24,5 @@ Running Instructions:
 •	Paste the github link mentioned above
 •	Wait for 2-3 minutes
 •	😎
+• Please use smaller repos as it takes a couple of minutes to execute (for best results use the link i provided)
+
